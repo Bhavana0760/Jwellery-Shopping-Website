@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="JewelleryApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewellery Products Shopping Site</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 10px;
+        }
+
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+        }
+
+        .card-text {
+            font-size: 14px;
+        }
+
+        .btn {
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cart -->
+<div ng-repeat="item in cart">
+    <span>{{ item.name }}</span>
+    <button ng-click="removeFromCart(item.id)">Remove from Cart</button>
+</div>
+
+<!-- Wishlist -->
+<div ng-repeat="item in wishlist">
+    <span>{{ item.name }}</span>
+    <button ng-click="removeFromWishlist(item.id)">Remove from Wishlist</button>
+</div>
+    <div ng-controller="jewelleryController">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Jewellery Products</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" ng-click="viewCart()">Cart</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" ng-click="viewWishlist()">Wishlist</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4" ng-repeat="product in products">
+                    <div class="card">
+                        <img class="card-img-top" ng-src="{{product.imageUrl}}" alt="{{product.name}}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{product.name}}</h5>
+                            <p class="card-text">{{product.description}}</p>
+                            <p class="card-text">Price: ${{product.price}}</p>
+                            <button class="btn btn-primary" ng-click="addToCart(product)">Add to Cart</button>
+                            <button class="btn btn-success" ng-click="addToWishlist(product)">Add to Wishlist</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" tabindex="-1" role="dialog" id="cartModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cart</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul ng-show="cart.length > 0">
+                            <li ng-repeat="item in cart">
+                                <span>{{item.name}} - {{item.price}} x {{item.quantity}}</span>
+                                <button class="btn btn-danger btn-sm" ng-click="removeFromCart(item.id)">Remove</button>
+                            </li>
+                        </ul>
+                        <p ng-show="cart.length === 0">Your cart is empty.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="viewCheckout()">Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal" tabindex="-1" role="dialog" id="wishlistModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Wishlist</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul ng-show="wishlist.length > 0">
+                            <li ng-repeat="item in wishlist">{{item.name}}</li>
+                        </ul>
+                        <p ng-show="wishlist.length === 0">Your wishlist is empty.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" tabindex="-1" role="dialog" id="checkoutModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Checkout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Total Amount: ${{getTotalAmount()}}</p>
+                        <!-- Add more checkout information or forms as needed -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <!-- Add functionality to proceed with the payment or checkout process -->
+                        <button type="button" class="btn btn-primary" ng-click="checkout()">Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app = angular.module('JewelleryApp', []);
+        app.controller('jewelleryController', function ($scope) {
+            $scope.products = [
+    { name: 'Necklace', description: 'Bridal Flower Design Necklace', price: 90, imageUrl: 'https://www.kushals.com/cdn/shop/files/zircon-necklace-green-gold-zircon-necklace-165127-37661794566300.jpg?v=170938502700&width=704' },
+    { name: 'Bangle', description: 'Green rodium zircon bangle', price: 20, imageUrl: 'https://www.kushals.com/cdn/shop/files/zircon-bangle-green-rodium-2-4-zircon-bangle-155459-37652506804380.jpg?v=170927596500&width=704' },
+    { name: 'Kada', description: 'Trendy Silver Kada', price: 18, imageUrl: 'https://www.kushals.com/cdn/shop/files/silver-kada-ruby-green-oxidised-silver-92-5-silver-kada-158239-37666060566684.jpg?v=171010666300&width=344' },
+    { name: 'Earring', description: 'Antique Earring', price: 14, imageUrl: 'https://www.kushals.com/cdn/shop/files/antique-earring-antique-earring-137058-36345130156188.jpg?v=1691563718' },
+    { name: 'Bracelet', description: 'Trendy Bracelet', price: 16, imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM4X45FUCbEtjg5no2C6eNlcjq9Cw5w7wzuERTZf03FQ7pQw-OuOoYKYffjQ1SEbaOwOA&usqp=CAU' },
+    { name: 'Brooch', description: 'Trendy Brooch', price: 12, imageUrl: 'https://www.kushals.com/cdn/shop/files/trendy-brooch-white-gold-trendy-brooch-166475-37169114022044.jpg?v=1703763815' },
+    { name: 'Payal', description: 'Ruby & Green Antique Payal', price: 30, imageUrl: 'https://www.kushals.com/cdn/shop/files/antique-payal-ruby-green-gold-antique-payal-147635-37594498629788.jpg?v=170859610300&width=704' },
+    { name: 'BajuBand', description: 'Antique BajuBand', price: 18, imageUrl: 'https://www.kushals.com/cdn/shop/files/antique-bajuband-ruby-gold-antique-bajuband-165502-36648968847516.jpg?v=1697609251&width=533' },
+    { name: 'Belt', description: 'Antique Belt', price: 12, imageUrl: 'https://www.kushals.com/cdn/shop/files/antique-belt-ruby-gold-antique-belt-157679-36502256517276.jpg?v=1694511996' },
+    { name: 'Matil', description: 'Antique Matil', price: 10, imageUrl: 'https://www.kushals.com/cdn/shop/files/antique-matil-ruby-gold-antique-matil-160227-36337263280284.jpg?v=1690986712&width=533' },
+    { name: 'Hair Brooch ', description: 'Trendy Hair Brooch', price: 100, imageUrl: 'https://rukminim2.flixcart.com/image/416/416/xif0q/hair-accessory/i/h/q/floral-hair-accessories-for-women-elegant-pins-for-wedding-original-imagyexu6qt6ywu5.jpeg?q=70&crop=false' },
+    { name: 'Earring ', description: 'Set of Pearl Earrings', price: 25, imageUrl: 'https://www.kushals.com/cdn/shop/files/trendy-zircon-earring-pearl-rose-gold-trendy-earring-168836-37683225821340_1024x1024.jpg?v=1709573308' },
+    { name: 'Anklet', description: 'Silver Anklet with Charms', price: 22, imageUrl: 'https://i.pinimg.com/736x/4d/45/e2/4d45e2e731380630697833dcb6fa883f.jpg' },
+    { name: 'Ring', description: 'Sapphire Gemstone Ring', price: 50, imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRf1DTCs3LThaKjErfEn2CMVTMNRVFnEvY7ZQ&usqp=CAU' },
+    { name: 'Maanga Tikka', description: 'Traditional Maang Tikka', price: 15, imageUrl: 'https://www.kushals.com/cdn/shop/files/antique-tikka-antique-tikka-162721-37677965738140.jpg?v=1709801733&width=533' }
+];
+$scope.removeFromCart = function (productId) {
+    var index = $scope.cart.findIndex(function (item) {
+        return item.id === productId;
+    });
+    if (index !== -1) {
+        $scope.cart.splice(index, 1);
+    }
+};
+
+
+            $scope.cart = [];
+            $scope.wishlist = [];
+            $scope.addToCart = function (product) {
+                if ($scope.cart.some(function (item) { return item.name === product.name; })) {
+                    $scope.cart.find(function (item) { return item.name === product.name; }).quantity++;
+                } else {
+                    $scope.cart.push({ name: product.name, price: product.price, quantity: 1 });
+                }
+            };
+
+            $scope.addToWishlist = function (product) {
+                if ($scope.wishlist.some(function (item) { return item.name === product.name; })) {
+                    alert('This product is already in your wishlist.');
+                } else {
+                    $scope.wishlist.push(product);
+                }
+            };
+
+            $scope.viewCart = function () {
+                $('#cartModal').modal('show');
+            };
+
+            $scope.viewWishlist = function () {
+                $('#wishlistModal').modal('show');
+            };
+            $scope.viewCheckout = function () {
+        $('#checkoutModal').modal('show');
+    };
+    $scope.getTotalAmount = function () {
+        var total = 0;
+        for (var i = 0; i < $scope.cart.length; i++) {
+            total += $scope.cart[i].price * $scope.cart[i].quantity;
+        }
+        return total;
+    };
+    $scope.checkout = function () {
+        // Add logic for processing the checkout, e.g., redirect to a payment page
+        alert('Proceeding to checkout. Total Amount: $' + $scope.getTotalAmount());
+        // You may want to clear the cart or perform other actions here
+    };
+        });
+    </script>
+</body>
+
+</html>
